@@ -1,1 +1,1 @@
-# cientific-calculator
+# sientific-calculator
