@@ -272,3 +272,5 @@ function gamma(n) {
     return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
   }
 }
+
+console.log(calculator_buttons[1]);
