@@ -1,5 +1,20 @@
+//SELECT ELEMENTS
+const inputElement = document.querySelector(".input");
+const outputOperationElement = document.querySelector(".operation value");
+const outputResultElement = document.querySelector(".result value");
+
+//VARIABLES
+const OPERATORS = ["+", "-", "*", "/"];
+const POWER = "POWER(",
+  FACTORIAL = "FACTORIAL";
+
+let data = {
+  operation: [],
+  formula: [],
+};
+
 // CALCULATOR BUTTONS
-let calculator_buttons = [
+let calculatorButtons = [
   {
     name: "rad",
     symbol: "Rad",
@@ -236,6 +251,28 @@ let calculator_buttons = [
   },
 ];
 
+// CREATE CALCULATOR BTNS
+
+function createCalculatorButtons() {
+  const btnsPerRow = 8;
+  let addedBtns = 0;
+
+  calculatorButtons.forEach((button) => {
+    if (addedBtns % btnsPerRow === 0) {
+      inputElement.innerHTML += `<div class='row'></div>`;
+    }
+
+    const row = document.querySelector(".row:last-child");
+    row.innerHTML += `<button id='${button.name}'>${button.symbol}</button>`;
+
+    addedBtns++;
+  });
+}
+
+createCalculatorButtons();
+
+// CLICK EVENT LISTENER
+
 /////////////////////////
 function factorial(num) {
   if (num % 1 != 0) return gamma(num + 1);
@@ -272,5 +309,3 @@ function gamma(n) {
     return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
   }
 }
-
-console.log(calculator_buttons[1]);

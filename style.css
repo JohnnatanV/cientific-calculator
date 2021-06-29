@@ -20,12 +20,12 @@ html {
 }
 
 .calc-container {
-  background-color: #1d1d1d;
+  background-color: #fff;
 
   width: 600px;
   height: auto;
 
-  border-radius: 0 0 30px 30px;
+  border-radius: 30px 30px;
 }
 
 .output {
@@ -44,6 +44,7 @@ html {
   position: relative;
   overflow: hidden;
 }
+
 .operation .value {
   position: absolute;
 
@@ -58,7 +59,7 @@ html {
   width: 600px;
   height: 140px;
 
-  color: #fff;
+  color: #1d1d1d;
 
   font-size: 2.6em;
   font-weight: bold;
@@ -79,7 +80,7 @@ html {
 }
 
 .input {
-  background-color: #fff;
+  background-color: #1d1d1d;
 
   border-radius: 0 0 25px 25px;
   border: 1px solid #1d1d1d;
@@ -100,6 +101,7 @@ html {
 
   border: none;
   border-radius: 50%;
+  color: #fff;
   background-color: transparent;
 
   margin: 8px;
@@ -113,7 +115,7 @@ html {
 
 .row #calculate {
   color: #fff;
-  background-color: #46e0bc;
+  background-color: #246463;
   width: 121px;
   border-radius: 50px;
 }
@@ -139,3 +141,5 @@ html {
   color: #fff !important;
   border-radius: 10px !important;
 }
+
+/* font-family: 'Press Start 2P', cursive; */
