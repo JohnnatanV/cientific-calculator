@@ -110,6 +110,7 @@ html {
 }
 
 .row button:hover {
+  transform: scale(1.02);
   font-weight: bold;
 }
 
@@ -136,9 +137,9 @@ html {
   position: absolute;
 }
 
-.active-angle {
-  background-color: #1d1d1d !important;
-  color: #fff !important;
+.activeAngle {
+  background-color: #fff !important;
+  color: #1d1d1d !important;
   border-radius: 10px !important;
 }
 

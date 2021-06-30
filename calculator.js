@@ -1,7 +1,7 @@
 //SELECT ELEMENTS
 const inputElement = document.querySelector(".input");
-const outputOperationElement = document.querySelector(".operation value");
-const outputResultElement = document.querySelector(".result value");
+const outputOperationElement = document.querySelector(".operation .value");
+const outputResultElement = document.querySelector(".result .value");
 
 //VARIABLES
 const OPERATORS = ["+", "-", "*", "/"];
@@ -31,13 +31,13 @@ let calculatorButtons = [
     name: "square-root",
     symbol: "√",
     formula: "Math.sqrt",
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "square",
     symbol: "x²",
     formula: POWER,
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "open-parenthesis",
@@ -73,19 +73,19 @@ let calculatorButtons = [
     name: "cos",
     symbol: "cos",
     formula: "trigo(Math.cos,",
-    type: "trigo_function",
+    type: "trigoFunction",
   },
   {
     name: "sin",
     symbol: "sin",
     formula: "trigo(Math.sin,",
-    type: "trigo_function",
+    type: "trigoFunction",
   },
   {
     name: "tan",
     symbol: "tan",
     formula: "trigo(Math.tan,",
-    type: "trigo_function",
+    type: "trigoFunction",
   },
   {
     name: "7",
@@ -120,20 +120,20 @@ let calculatorButtons = [
   {
     name: "acos",
     symbol: "acos",
-    formula: "inv_trigo(Math.acos,",
-    type: "trigo_function",
+    formula: "invTrigo(Math.acos,",
+    type: "trigoFunction",
   },
   {
     name: "asin",
     symbol: "asin",
-    formula: "inv_trigo(Math.asin,",
-    type: "trigo_function",
+    formula: "invTrigo(Math.asin,",
+    type: "trigoFunction",
   },
   {
     name: "atan",
     symbol: "atan",
-    formula: "inv_trigo(Math.atan,",
-    type: "trigo_function",
+    formula: "invTrigo(Math.atan,",
+    type: "trigoFunction",
   },
   {
     name: "4",
@@ -163,25 +163,25 @@ let calculatorButtons = [
     name: "factorial",
     symbol: "×!",
     formula: FACTORIAL,
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "exp",
     symbol: "exp",
     formula: "Math.exp",
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "ln",
     symbol: "ln",
     formula: "Math.log",
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "log",
     symbol: "log",
     formula: "Math.log10",
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "1",
@@ -211,7 +211,7 @@ let calculatorButtons = [
     name: "power",
     symbol: "x<span>y</span>",
     formula: POWER,
-    type: "math_function",
+    type: "mathFunction",
   },
   {
     name: "ANS",
@@ -271,7 +271,106 @@ function createCalculatorButtons() {
 
 createCalculatorButtons();
 
+// RAD and DEG
+
+let RADIANT = true;
+
+const radBtn = document.getElementById("rad");
+const degBtn = document.getElementById("deg");
+
+radBtn.classList.add("activeAngle");
+
+function angleToggler() {
+  radBtn.classList.toggle("activeAngle");
+  degBtn.classList.toggle("activeAngle");
+}
+
 // CLICK EVENT LISTENER
+
+inputElement.addEventListener("click", (event) => {
+  const targetBtn = event.target;
+
+  calculatorButtons.forEach((button) => {
+    if (button.name == targetBtn.id) calculator(button);
+  });
+});
+
+// CALCULATOR
+
+function calculator(button) {
+  if (button.type == "operator") {
+    data.operation.push(button.symbol);
+    data.formula.push(button.formula);
+  } else if (button.type == "number") {
+    data.operation.push(button.symbol);
+    data.formula.push(button.formula);
+  } else if (button.type == "trigoFunction") {
+    data.operation.push(button.symbol + "(");
+    data.formula.push(button.formula);
+  } else if (button.type == "mathFunction") {
+    let symbol, formula;
+
+    if (button.name == "factorial") {
+      symbol = "!";
+      formula = button.formula;
+      data.operation.push(symbol);
+      data.formula.push(formula);
+    } else if (button.name == "power") {
+      symbol = "^(";
+      formula = button.formula;
+      data.operation.push(symbol);
+      data.formula.push(formula);
+    } else if (button.name == "square") {
+      symbol = "^(";
+      formula = button.formula;
+
+      data.operation.push(symbol);
+      data.formula.push(formula);
+
+      data.operation.push("2)");
+      data.formula.push("2)");
+    } else {
+      symbol = button.symbol + "(";
+      formula = button.formula + "(";
+      data.operation.push(symbol);
+      data.formula.push(formula);
+    }
+  } else if (button.type == "key") {
+    if (button.name == "clear") {
+      data.operation = [];
+      data.formula = [];
+
+      updateOutputResult(0);
+    } else if (button.name == "delete") {
+      data.operation.pop();
+      data.formula.pop();
+    } else if (button.name == "rad") {
+      RADIANT = true;
+      angleToggler();
+    } else if (button.name == "deg") {
+      RADIANT = false;
+      angleToggler();
+    }
+  } else if (button.type == "calculate") {
+    formulaString = data.formula.join("");
+
+    let result = eval(formulaString);
+
+    updateOutputResult(result);
+  }
+
+  updateOutputOperation(data.operation.join(""));
+}
+
+// UPDATE OUTPUT
+
+function updateOutputOperation(operation) {
+  outputOperationElement.innerHTML = operation;
+}
+
+function updateOutputResult(result) {
+  outputResultElement.innerHTML = result;
+}
 
 /////////////////////////
 function factorial(num) {
@@ -309,3 +408,9 @@ function gamma(n) {
     return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
   }
 }
+
+// TRIGONOMETRIC FUNCTION
+
+function trigo(callback, angle) {}
+
+function invTrigo(callback, value) {}
