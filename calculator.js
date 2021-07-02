@@ -70,15 +70,15 @@ let calculatorButtons = [
     type: "number",
   },
   {
-    name: "cos",
-    symbol: "cos",
-    formula: "trigo(Math.cos,",
-    type: "trigoFunction",
-  },
-  {
     name: "sin",
     symbol: "sin",
     formula: "trigo(Math.sin,",
+    type: "trigoFunction",
+  },
+  {
+    name: "cos",
+    symbol: "cos",
+    formula: "trigo(Math.cos,",
     type: "trigoFunction",
   },
   {
@@ -118,15 +118,15 @@ let calculatorButtons = [
     type: "number",
   },
   {
-    name: "acos",
-    symbol: "acos",
-    formula: "invTrigo(Math.acos,",
-    type: "trigoFunction",
-  },
-  {
     name: "asin",
     symbol: "asin",
     formula: "invTrigo(Math.asin,",
+    type: "trigoFunction",
+  },
+  {
+    name: "acos",
+    symbol: "acos",
+    formula: "invTrigo(Math.acos,",
     type: "trigoFunction",
   },
   {
@@ -273,7 +273,7 @@ createCalculatorButtons();
 
 // RAD and DEG
 
-let RADIANT = true;
+let RADIAN = true;
 
 const radBtn = document.getElementById("rad");
 const degBtn = document.getElementById("deg");
@@ -345,23 +345,182 @@ function calculator(button) {
       data.operation.pop();
       data.formula.pop();
     } else if (button.name == "rad") {
-      RADIANT = true;
+      RADIAN = true;
       angleToggler();
     } else if (button.name == "deg") {
-      RADIANT = false;
+      RADIAN = false;
       angleToggler();
     }
   } else if (button.type == "calculate") {
     formulaString = data.formula.join("");
 
-    let result = eval(formulaString);
+    // FIX POWER AND FACCTORIAL ISSUE
+
+    /* SEARCH FOR FACTORIAL AND POWER FUNCTIONS */
+    let POWER_SEARCH_RESULT = search(data.formula, POWER);
+    let FACTORIAL_SEARCH_RESULT = search(data.formula, FACTORIAL);
+
+    /* GET POWER BASE AND REPLACE WITH THE RIGHT FORMULA */
+
+    const BASES = powerBaseGetter(data.formula, POWER_SEARCH_RESULT);
+    BASES.forEach((base) => {
+      let toReplace = base + POWER;
+      let replacement = "Math.pow(" + base + ",";
+
+      formulaString = formulaString.replace(toReplace, replacement);
+    });
+
+    /* GET FACTORIAL AND REPLACE WITH THE RIGHT FORMULA */
+    const NUMBERS = factorialNumberGetter(
+      data.formula,
+      FACTORIAL_SEARCH_RESULT
+    );
+
+    NUMBERS.forEach((factorial) => {
+      formulaString = formulaString.replace(
+        factorial.toReplace,
+        factorial.replacement
+      );
+    });
+
+    // CALCULATE
+
+    let result;
+
+    try {
+      result = eval(formulaString);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        result = "Syntax Error!";
+        updateOutputResult(result);
+        return;
+      }
+    }
+
+    // SAVE RESULT FOR LATER USE
+
+    ans = result;
+    data.operation = [result];
+    data.formula = [result];
 
     updateOutputResult(result);
+    return;
   }
 
   updateOutputOperation(data.operation.join(""));
 }
 
+// FACTORIAL NUMBER GETTER
+
+function factorialNumberGetter(formula, FACTORIAL_SEARCH_RESULT) {
+  let numbers = []; // SAVE ALL THE NUMBERS IN THE SAME ARRAY
+  let factorialSequence = 0;
+
+  FACTORIAL_SEARCH_RESULT.forEach((factorialIndex) => {
+    let number = []; // current factorial number
+
+    let nextIndex = factorialIndex + 1;
+    let nextInput = formula[nextIndex];
+
+    if (nextInput == FACTORIAL) {
+      factorialSequence += 1;
+      return;
+    }
+
+    /* IF THERE WAS A FACTORIAL SEQUENCE WE NEED TO GET
+     THEINDEX OF THE VERY FIRST FACTORIAL FUNCTION */
+    let firstFactorialIndex = factorialIndex - factorialSequence;
+
+    // THEN TO GET THE NUMBER RIGHT BEFORE IT
+    let previusIndex = firstFactorialIndex - 1;
+
+    let parenthesisCount = 0;
+
+    while (previusIndex >= 0) {
+      if (formula[previusIndex] == "(") parenthesisCount--;
+      if (formula[previusIndex] == ")") parenthesisCount++;
+
+      let isOperator = false;
+
+      OPERATORS.forEach((OPERATOR) => {
+        if (formula[previusIndex] == OPERATOR) isOperator = true;
+      });
+
+      let isPower = formula[previusIndex] == POWER;
+
+      if ((isOperator && parenthesesCount == 0) || isPower) break;
+
+      number.unshift(formula[previusIndex]);
+      previusIndex--;
+    }
+
+    let numberStr = number.join("");
+
+    const factorial = "factorial(",
+      closeParenthesis = ")";
+    let times = factorialSequence + 1;
+
+    let toReplace = numberStr + FACTORIAL.repeat(times);
+    let replacement =
+      factorial.repeat(times) + numberStr + closeParenthesis.repeat(times);
+
+    numbers.push({
+      toReplace: toReplace,
+      replacement: replacement,
+    });
+
+    // RESET factorialSequence
+    factorialSequence = 0;
+  });
+
+  return numbers;
+}
+
+// POWER BASE GETTER
+
+function powerBaseGetter(formula, POWER_SEARCH_RESULT) {
+  let powerBases = []; // SAVE ALL BASES IN THE SAME ARRAY
+
+  POWER_SEARCH_RESULT.forEach((powerIndex) => {
+    let base = []; // current base
+
+    let parenthesesCount = 0;
+
+    let previusIndex = powerIndex - 1;
+
+    while (previusIndex >= 0) {
+      if (formula[previusIndex] == "(") parenthesisCount--;
+      if (formula[previusIndex] == ")") parenthesisCount++;
+
+      let isOperator = false;
+
+      OPERATORS.forEach((OPERATOR) => {
+        if (formula[previusIndex] == OPERATOR) isOperator = true;
+      });
+
+      let isPower = formula[previusIndex] == POWER;
+
+      if ((isOperator && parenthesesCount == 0) || isPower) break;
+
+      base.unshift(formula[previusIndex]);
+      previusIndex--;
+    }
+    powerBases.push(base.join(""));
+  });
+
+  return powerBases;
+}
+// SEARCH AN ARRAY
+
+function search(array, keyword) {
+  let searchResult = [];
+
+  array.forEach((element, index) => {
+    if (element == keyword) searchResult.push(index);
+  });
+
+  return searchResult;
+}
 // UPDATE OUTPUT
 
 function updateOutputOperation(operation) {
@@ -372,14 +531,15 @@ function updateOutputResult(result) {
   outputResultElement.innerHTML = result;
 }
 
-/////////////////////////
+// FACTORIAL FUNCTION
+
 function factorial(num) {
   if (num % 1 != 0) return gamma(num + 1);
   if (num === 0 || num === 1) return 1;
 
   let result = 1;
 
-  for (let i = 1; 1 <= num; i++) {
+  for (let i = 1; i <= num; i++) {
     result = result * i;
     if (result === Infinity) return Infinity;
   }
@@ -411,6 +571,18 @@ function gamma(n) {
 
 // TRIGONOMETRIC FUNCTION
 
-function trigo(callback, angle) {}
+function trigo(callback, angle) {
+  if (!RADIAN) {
+    angle = (angle * Math.PI) / 100;
+  }
+  return callback(angle);
+}
 
-function invTrigo(callback, value) {}
+function invTrigo(callback, value) {
+  let angle = callback(value);
+
+  if (!RADIAN) {
+    angle = (angle * 180) / Math.PI;
+  }
+  return angle;
+}
